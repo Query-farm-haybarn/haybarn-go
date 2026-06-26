@@ -1,5 +1,5 @@
-github.com/Query-farm-haybarn/haybarn-go-bindings v0.10504.0 h1:2eei/fs199mA1VDZHsAiHEyrnKsXi1WNVeS8fULWmiU=
-github.com/Query-farm-haybarn/haybarn-go-bindings v0.10504.0/go.mod h1:H+ybIR2JaMVM38LfqM2e4c7lz6xzLDDdpB2iMa7m9K0=
+github.com/Query-farm-haybarn/haybarn-go-bindings v0.10504.1 h1:Qjhakf3V+rNldF9AF46GEzIMkm1I7S1pAeQ3e5VKbKQ=
+github.com/Query-farm-haybarn/haybarn-go-bindings v0.10504.1/go.mod h1:H+ybIR2JaMVM38LfqM2e4c7lz6xzLDDdpB2iMa7m9K0=
 github.com/Query-farm-haybarn/haybarn-go-bindings/lib/darwin-amd64 v0.10504.0 h1:zfqwR1a4LFwezkCTGOd0IXHIO2ETy1rNE+QwmOz5yEU=
 github.com/Query-farm-haybarn/haybarn-go-bindings/lib/darwin-amd64 v0.10504.0/go.mod h1:a64Ayxms05WtVAzr88mM5tQdfgJdyv2cT9Nl+1CVtUQ=
 github.com/Query-farm-haybarn/haybarn-go-bindings/lib/darwin-arm64 v0.10504.0 h1:ryYnAPp/zGgUVbLLaAt3e2oKVtx7raQ0h3yzHvhhxsM=
