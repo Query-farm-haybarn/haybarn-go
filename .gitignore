@@ -1,0 +1,7 @@
+go.work
+go.work.sum
+*.test
+cover.out
+cover.html
+dynamic-dir/
+static-dir/
