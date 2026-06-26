@@ -96,16 +96,16 @@ jobs:
         os: [macos-15-intel, macos-14, ubuntu-latest, ubuntu-24.04-arm]
         include:
           - os: "macos-15-intel"
-            filename: "libduckdb-osx-universal"
+            filename: "libhaybarn-osx-universal"
             ld_path_env_name: "DYLD_LIBRARY_PATH"
           - os: "macos-14"
-            filename: "libduckdb-osx-universal"
+            filename: "libhaybarn-osx-universal"
             ld_path_env_name: "DYLD_LIBRARY_PATH"
           - os: "ubuntu-latest"
-            filename: "libduckdb-linux-amd64"
+            filename: "libhaybarn-linux-amd64"
             ld_path_env_name: "LD_LIBRARY_PATH"
           - os: "ubuntu-24.04-arm"
-            filename: "libduckdb-linux-arm64"
+            filename: "libhaybarn-linux-arm64"
             ld_path_env_name: "LD_LIBRARY_PATH"
       fail-fast: false
     steps:
@@ -116,7 +116,7 @@ jobs:
       - name: Run Dynamic Lib Tests
         run: |
           make test.dynamic.lib FILENAME=${{ matrix.filename }}
-          CGO_ENABLED=1 CGO_LDFLAGS="-lduckdb -L${SRCDIR}dynamic-dir" ${{ matrix.ld_path_env_name }}=${SRCDIR}dynamic-dir go test -tags=duckdb_use_lib
+          CGO_ENABLED=1 CGO_LDFLAGS="-lhaybarn -L${SRCDIR}dynamic-dir" ${{ matrix.ld_path_env_name }}=${SRCDIR}dynamic-dir go test -tags=duckdb_use_lib
 
   test-static-lib-darwin-arm64:
     name: Static Lib Tests Darwin ARM64
@@ -136,4 +136,4 @@ jobs:
       - name: Run Static Lib Tests Darwin ARM64
         run: |
           make test.static.lib.darwin.arm64
-          CGO_ENABLED=1 CPPFLAGS="-DDUCKDB_STATIC_BUILD" CGO_LDFLAGS="-lduckdb_static -lduckdb_generated_extension_loader -lautocomplete_extension -lcore_functions_extension -licu_extension -ljson_extension -lparquet_extension -ltpcds_extension -ltpch_extension -lduckdb_fastpforlib -lduckdb_fmt -lduckdb_fsst -lduckdb_hyperloglog -lduckdb_mbedtls -lduckdb_miniz -lduckdb_pg_query -lduckdb_re2 -lduckdb_skiplistlib -lduckdb_utf8proc -lduckdb_yyjson -lduckdb_zstd -lc++ -L${SRCDIR}static-dir" go test -tags=duckdb_use_static_lib
+          CGO_ENABLED=1 CPPFLAGS="-DDUCKDB_STATIC_BUILD" CGO_LDFLAGS="-lhaybarn_static -lduckdb_generated_extension_loader -lautocomplete_extension -lcore_functions_extension -licu_extension -ljson_extension -lparquet_extension -ltpcds_extension -ltpch_extension -lduckdb_fastpforlib -lduckdb_fmt -lduckdb_fsst -lduckdb_hyperloglog -lduckdb_mbedtls -lduckdb_miniz -lduckdb_pg_query -lduckdb_re2 -lduckdb_skiplistlib -lduckdb_utf8proc -lduckdb_yyjson -lduckdb_zstd -lc++ -L${SRCDIR}static-dir" go test -tags=duckdb_use_static_lib
