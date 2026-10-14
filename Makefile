@@ -1,6 +1,6 @@
 # Haybarn engine release the optional dynamic/static-lib test targets pull from.
 HAYBARN_REPO=Query-farm-haybarn/haybarn
-HAYBARN_VERSION=haybarn-v1.5.5-rc1
+HAYBARN_VERSION=haybarn-v1.5.6-rc1
 
 test.examples:
 	go run examples/appender/main.go
