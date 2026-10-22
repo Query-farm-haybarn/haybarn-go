@@ -11,7 +11,7 @@ concurrency:
 jobs:
   go_test:
     name: Main Tests
-    runs-on: &runner ${{ github.repository_owner == 'duckdb' && matrix.namespace || matrix.github }}
+    runs-on: &runner ${{ matrix.github }}
     timeout-minutes: 15
     defaults:
       run:
@@ -23,27 +23,26 @@ jobs:
           - darwin-arm64
           - linux-amd64
           - linux-arm64
-          - windows-amd64
         go: [1.24]
         # Keep native Intel coverage after merge without delaying PR checks.
         exclude: &skip-intel-on-pr ${{ fromJSON(github.event_name == 'pull_request' && '[{"platform":"darwin-amd64"}]' || '[]') }}
-        # Platforms map to GitHub-hosted runners by default and to DuckDB's Namespace
-        # runners when the workflow runs in the duckdb organization. There is no
-        # Namespace profile for Intel macOS, so runs-on falls back to github.
+        # windows-amd64 is left out until the Haybarn engine release has MinGW
+        # static libraries for the bindings to link.
         include:
           # Includes run after exclusions; use an empty array on PRs to avoid
           # adding the excluded Intel job back.
           - &darwin-amd64 ${{ fromJSON(github.event_name == 'pull_request' && '[]' || '[{"platform":"darwin-amd64","github":"macos-15-intel"}]') }}
-          - &darwin-arm64 { platform: darwin-arm64, github: macos-26, namespace: namespace-profile-macos-arm64 }
-          - &linux-amd64 { platform: linux-amd64, github: ubuntu-24.04, namespace: namespace-profile-linux-small }
-          - &linux-arm64 { platform: linux-arm64, github: ubuntu-24.04-arm, namespace: namespace-profile-linux-arm64-small }
-          - &windows-amd64 { platform: windows-amd64, github: windows-2025, namespace: namespace-profile-windows-x64 }
+          - &darwin-arm64 { platform: darwin-arm64, github: macos-26 }
+          - &linux-amd64 { platform: linux-amd64, github: ubuntu-24.04 }
+          - &linux-arm64 { platform: linux-arm64, github: ubuntu-24.04-arm }
       fail-fast: false
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go }}
+      - name: Serve the bindings' native modules
+        run: scripts/native-proxy.sh >> "$GITHUB_ENV"
       - name: Run Main Tests
         run: go test -v
 
@@ -65,6 +64,8 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go }}
+      - name: Serve the bindings' native modules
+        run: scripts/native-proxy.sh >> "$GITHUB_ENV"
       - name: Run Race Tests
         run: go test -race -count=1 ./...
 
@@ -87,6 +88,8 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go }}
+      - name: Serve the bindings' native modules
+        run: scripts/native-proxy.sh >> "$GITHUB_ENV"
       - name: Test Examples
         run: make test.examples
 
@@ -102,15 +105,16 @@ jobs:
         platform:
           - darwin-arm64
           - linux-amd64
-          - windows-amd64
         go: [1.24]
-        include: [*darwin-arm64, *linux-amd64, *windows-amd64]
+        include: [*darwin-arm64, *linux-amd64]
       fail-fast: false
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go }}
+      - name: Serve the bindings' native modules
+        run: scripts/native-proxy.sh >> "$GITHUB_ENV"
       - name: Run Arrow Tests
         run: go test -v -tags=duckdb_arrow
 
@@ -148,10 +152,12 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go }}
+      - name: Serve the bindings' native modules
+        run: scripts/native-proxy.sh >> "$GITHUB_ENV"
       - name: Run Dynamic Lib Tests
         run: |
           make test.dynamic.lib PLATFORM=${{ matrix.platform }}
-          CGO_ENABLED=1 CGO_LDFLAGS="-lduckdb -L${SRCDIR}dynamic-dir" ${{ matrix.ld_path_env_name }}=${SRCDIR}dynamic-dir go test -tags=duckdb_use_lib
+          CGO_ENABLED=1 CGO_LDFLAGS="-lhaybarn -L${SRCDIR}dynamic-dir" ${{ matrix.ld_path_env_name }}=${SRCDIR}dynamic-dir go test -tags=duckdb_use_lib
 
   test-static-lib-darwin-arm64:
     name: Static Lib Tests Darwin ARM64
@@ -170,7 +176,9 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go }}
+      - name: Serve the bindings' native modules
+        run: scripts/native-proxy.sh >> "$GITHUB_ENV"
       - name: Run Static Lib Tests Darwin ARM64
         run: |
           make test.static.lib.darwin.arm64
-          CGO_ENABLED=1 CPPFLAGS="-DDUCKDB_STATIC_BUILD" CGO_LDFLAGS="-lduckdb_static_extension_loader -lduckdb_httplib -lduckdb_loadable_extensions -lautocomplete_extension -lcore_functions_extension -licu_extension -ljson_extension -lparquet_extension -ltpcds_extension -ltpch_extension -lduckdb_static -lc++ -L${SRCDIR}static-dir" go test -tags=duckdb_use_static_lib
+          CGO_ENABLED=1 CPPFLAGS="-DDUCKDB_STATIC_BUILD" CGO_LDFLAGS="-lduckdb_static_extension_loader -lduckdb_httplib -lduckdb_loadable_extensions -lautocomplete_extension -lcore_functions_extension -licu_extension -ljson_extension -lparquet_extension -ltpcds_extension -ltpch_extension -lhaybarn_static -lc++ -L${SRCDIR}static-dir" go test -tags=duckdb_use_static_lib
