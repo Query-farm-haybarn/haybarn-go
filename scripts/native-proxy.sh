@@ -21,8 +21,12 @@ platform=$(jq -r '.platforms | keys[0]' "$manifest")
 if curl -fsS -o /dev/null 2>/dev/null "$origin/modules/$prefix/$platform/@v/$version.info"; then
 	echo "GOPROXY=$origin/modules,https://proxy.golang.org"
 else
-	export LIB_WORK=${LIB_WORK:-${RUNNER_TEMP:-${TMPDIR:-/tmp}}/haybarn-go-libraries}
-	(cd "$dir" && GOWORK=off GOFLAGS=-mod=mod go run ./internal/cmd/brood package) >&2
-	echo "GOPROXY=file://$LIB_WORK/modules,https://proxy.golang.org"
+	# Archives no release carries yet come from CI runs (needs GH_TOKEN).
+	(cd "$dir" && { [[ ! -f scripts/seed-interim.sh ]] || GOWORK=off GOFLAGS=-mod=mod bash scripts/seed-interim.sh; } &&
+		GOWORK=off GOFLAGS=-mod=mod go run ./internal/cmd/brood package) >&2
+	# brood env's MODULE_PROXY is the file:// proxy of the packaged modules.
+	lib_env=$(cd "$dir" && GOWORK=off GOFLAGS=-mod=mod go run ./internal/cmd/brood env)
+	eval "$lib_env"
+	echo "GOPROXY=$MODULE_PROXY"
 fi
 echo "GONOSUMDB=$prefix"

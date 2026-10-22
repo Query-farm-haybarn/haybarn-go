@@ -20,6 +20,8 @@ jobs:
         with:
           go-version-file: "go.mod"
       - name: Serve the bindings' native modules
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: scripts/native-proxy.sh >> "$GITHUB_ENV"
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
@@ -36,6 +38,8 @@ jobs:
         with:
           go-version-file: "go.mod"
       - name: Serve the bindings' native modules
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: scripts/native-proxy.sh >> "$GITHUB_ENV"
 
       - name: Generate Test Coverage

@@ -23,11 +23,10 @@ jobs:
           - darwin-arm64
           - linux-amd64
           - linux-arm64
+          - windows-amd64
         go: [1.24]
         # Keep native Intel coverage after merge without delaying PR checks.
         exclude: &skip-intel-on-pr ${{ fromJSON(github.event_name == 'pull_request' && '[{"platform":"darwin-amd64"}]' || '[]') }}
-        # windows-amd64 is left out until the Haybarn engine release has MinGW
-        # static libraries for the bindings to link.
         include:
           # Includes run after exclusions; use an empty array on PRs to avoid
           # adding the excluded Intel job back.
@@ -35,6 +34,7 @@ jobs:
           - &darwin-arm64 { platform: darwin-arm64, github: macos-26 }
           - &linux-amd64 { platform: linux-amd64, github: ubuntu-24.04 }
           - &linux-arm64 { platform: linux-arm64, github: ubuntu-24.04-arm }
+          - &windows-amd64 { platform: windows-amd64, github: windows-2025 }
       fail-fast: false
     steps:
       - uses: actions/checkout@v7
@@ -42,6 +42,8 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
       - name: Serve the bindings' native modules
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: scripts/native-proxy.sh >> "$GITHUB_ENV"
       - name: Run Main Tests
         run: go test -v
@@ -65,6 +67,8 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
       - name: Serve the bindings' native modules
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: scripts/native-proxy.sh >> "$GITHUB_ENV"
       - name: Run Race Tests
         run: go test -race -count=1 ./...
@@ -89,6 +93,8 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
       - name: Serve the bindings' native modules
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: scripts/native-proxy.sh >> "$GITHUB_ENV"
       - name: Test Examples
         run: make test.examples
@@ -105,8 +111,9 @@ jobs:
         platform:
           - darwin-arm64
           - linux-amd64
+          - windows-amd64
         go: [1.24]
-        include: [*darwin-arm64, *linux-amd64]
+        include: [*darwin-arm64, *linux-amd64, *windows-amd64]
       fail-fast: false
     steps:
       - uses: actions/checkout@v7
@@ -114,6 +121,8 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
       - name: Serve the bindings' native modules
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: scripts/native-proxy.sh >> "$GITHUB_ENV"
       - name: Run Arrow Tests
         run: go test -v -tags=duckdb_arrow
@@ -153,6 +162,8 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
       - name: Serve the bindings' native modules
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: scripts/native-proxy.sh >> "$GITHUB_ENV"
       - name: Run Dynamic Lib Tests
         run: |
@@ -177,6 +188,8 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
       - name: Serve the bindings' native modules
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: scripts/native-proxy.sh >> "$GITHUB_ENV"
       - name: Run Static Lib Tests Darwin ARM64
         run: |
