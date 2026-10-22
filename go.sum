@@ -1,5 +1,5 @@
-github.com/Query-farm-haybarn/haybarn-go-bindings v0.0.0-20261022165026-48a3ba88b81e h1:ycp0KneuhRqOS1sO0O1tozyhbeh+AY+u0cG7g72BSZo=
-github.com/Query-farm-haybarn/haybarn-go-bindings v0.0.0-20261022165026-48a3ba88b81e/go.mod h1:InpyuTn56tXveed3dRkUFcLeYrM0k8HJm5Dv7lXZqtY=
+github.com/Query-farm-haybarn/haybarn-go-bindings v0.0.0-20261022184752-0de3909b2a08 h1:0s8YcsNEx/0ev01YV6nwZmyAfO8cLDRfoUwJWIsFtHo=
+github.com/Query-farm-haybarn/haybarn-go-bindings v0.0.0-20261022184752-0de3909b2a08/go.mod h1:D589C84kFVe67GWKfWEheb2RL0atJXdJkVxM8uAi2u4=
 github.com/andybalholm/brotli v1.2.0 h1:ukwgCxwYrmACq68yiUqwIWnGY0cTPox/M94sVwToPjQ=
 github.com/andybalholm/brotli v1.2.0/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
 github.com/apache/arrow-go/v18 v18.5.1 h1:yaQ6zxMGgf9YCYw4/oaeOU3AULySDlAYDOcnr4LdHdI=
@@ -68,3 +68,5 @@ haybarn-extensions.query.farm/go/libhaybarn/linux-amd64 v0.20000.0-rc.3 h1:lK52g
 haybarn-extensions.query.farm/go/libhaybarn/linux-amd64 v0.20000.0-rc.3/go.mod h1:Hu+9l77fybPL867aCPBEnJZr6N/TMmIkf8G1XM1Bfow=
 haybarn-extensions.query.farm/go/libhaybarn/linux-arm64 v0.20000.0-rc.3 h1:SQqk0cLIPPMl8mR59QKXD6IpVYdx48KoEzFgiU0xZhs=
 haybarn-extensions.query.farm/go/libhaybarn/linux-arm64 v0.20000.0-rc.3/go.mod h1:f0riGS9PWB5o4KdnUzp7aggMqk3z8wqAUzrlBe0p31w=
+haybarn-extensions.query.farm/go/libhaybarn/windows-amd64 v0.20000.0-rc.3 h1:ITMou4HfbEbiXhcrzMfP8AAjgnvMb9Wi4mUKVqdNkLk=
+haybarn-extensions.query.farm/go/libhaybarn/windows-amd64 v0.20000.0-rc.3/go.mod h1:V8K2tXkqHPl5D8EcyafEQxUzzsuNEZSM4A+WNILr6Y4=
