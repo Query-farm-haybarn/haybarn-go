@@ -1,5 +1,5 @@
-BINDINGS=github.com/duckdb/duckdb-go-bindings
-NATIVE_DARWIN_ARM64=go.duckdb.org/libduckdb/darwin-arm64
+BINDINGS=github.com/Query-farm-haybarn/haybarn-go-bindings
+NATIVE_DARWIN_ARM64=haybarn-extensions.query.farm/go/libhaybarn/darwin-arm64
 PLATFORM ?= $(shell go env GOOS)-$(shell go env GOARCH)
 SHA256SUM := $(shell command -v sha256sum >/dev/null && echo sha256sum || echo shasum -a 256)
 
@@ -18,10 +18,10 @@ test.dynamic.lib:
 	artifact=$$(jq -er '.platforms["${PLATFORM}"].shared' "$$manifest") && \
 	sha256=$$(jq -er '.platforms["${PLATFORM}"].shared_sha256' "$$manifest") && \
 	mkdir dynamic-dir && \
-	curl -fsSL -o dynamic-dir/libs.tar.gz "$$base_url/duckdb-shared-libs-$$artifact.tar.gz" && \
-	echo "$$sha256  dynamic-dir/libs.tar.gz" | ${SHA256SUM} -c - && \
-	tar -xzf dynamic-dir/libs.tar.gz -C dynamic-dir && \
-	rm dynamic-dir/libs.tar.gz
+	curl -fsSL -o dynamic-dir/libs.zip "$$base_url/libhaybarn-$$artifact.zip" && \
+	echo "$$sha256  dynamic-dir/libs.zip" | ${SHA256SUM} -c - && \
+	unzip -q dynamic-dir/libs.zip -d dynamic-dir && \
+	rm dynamic-dir/libs.zip
 
 # Copy the static archives of the bindings' darwin-arm64 module and build their extension loader.
 test.static.lib.darwin.arm64:

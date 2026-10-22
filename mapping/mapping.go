@@ -1,7 +1,7 @@
 package mapping
 
 import (
-	bindings "github.com/duckdb/duckdb-go-bindings"
+	bindings "github.com/Query-farm-haybarn/haybarn-go-bindings"
 )
 
 // Enums.
