@@ -1,9 +1,66 @@
-# Go SQL Driver For [DuckDB](https://github.com/duckdb/duckdb)
+# haybarn-go — Go SQL Driver for Haybarn
 
-![Tests status](https://github.com/duckdb/duckdb-go/actions/workflows/tests.yaml/badge.svg)
-[![GoDoc](https://godoc.org/github.com/duckdb/duckdb-go/v2?status.svg)](https://pkg.go.dev/github.com/duckdb/duckdb-go/v2)
+![Tests status](https://github.com/Query-farm-haybarn/haybarn-go/actions/workflows/tests.yaml/badge.svg)
+[![GoDoc](https://godoc.org/github.com/Query-farm-haybarn/haybarn-go/v2?status.svg)](https://pkg.go.dev/github.com/Query-farm-haybarn/haybarn-go/v2)
 
-The DuckDB driver conforms to the built-in `database/sql` interface.
+A `database/sql` driver for **Haybarn**, an independent derived distribution of
+DuckDB published by Query Farm LLC ("Haybarn, powered by DuckDB"). It is a fork
+of [`duckdb/duckdb-go`](https://github.com/duckdb/duckdb-go) that links the
+Haybarn engine (via [`haybarn-go-bindings`](https://github.com/Query-farm-haybarn/haybarn-go-bindings)),
+so extensions install from `haybarn-extensions.query.farm` and verify against the
+Haybarn trust root.
+
+> Haybarn is **independent of and not endorsed by the DuckDB Foundation**.
+> DuckDB is a trademark of the DuckDB Foundation.
+
+This branch (`haybarn-2.0`) tracks Haybarn 2.0 (DuckDB v2.0.0); the 1.5 line
+lives on the `haybarn` branch.
+
+## Installation
+
+```go
+import _ "github.com/Query-farm-haybarn/haybarn-go/v2"
+```
+
+Then open a database with the `haybarn` driver name (the `duckdb` name is also
+registered as a drop-in alias):
+
+```go
+db, err := sql.Open("haybarn", "")
+```
+
+`CGO_ENABLED=1` and a C compiler are required. Pre-built libraries cover
+darwin-amd64, darwin-arm64, linux-amd64 (x86-64-v3) and linux-arm64;
+windows-amd64 is not available for 2.0 yet. The bindings fetch their native
+library modules from `haybarn-extensions.query.farm/go`, so builds that
+restrict module downloads must allow it.
+
+## Migrating from duckdb-go
+
+Swap the import path; nothing else needs to change. Your existing
+`sql.Open("duckdb", ...)` calls keep working because the driver registers both
+names — or switch them to `"haybarn"` at your leisure:
+
+```sh
+go get github.com/Query-farm-haybarn/haybarn-go/v2
+gofmt -w -r '"github.com/duckdb/duckdb-go/v2" -> "github.com/Query-farm-haybarn/haybarn-go/v2"' .
+gofmt -w -r '"github.com/duckdb/duckdb-go/v2/mapping" -> "github.com/Query-farm-haybarn/haybarn-go/v2/mapping"' .
+gofmt -w -r '"github.com/duckdb/duckdb-go/v2/arrowmapping" -> "github.com/Query-farm-haybarn/haybarn-go/v2/arrowmapping"' .
+go mod tidy
+```
+
+## Versioning
+
+The version encodes the engine version in its second semver component, mirroring
+upstream: Haybarn/DuckDB `v2.0.0` → `v2.20000.x` (release candidates
+`v2.20000.0-rc.N`), `v1.5.6` → `v2.10506.x`.
+
+---
+
+The remainder of this README is inherited from the upstream `duckdb-go` project.
+Where it describes linking your own libraries, use the Haybarn release assets:
+`haybarn-static-libs-<platform>.tar.gz` (link `libhaybarn_static.a` /
+`-lhaybarn_static` last) and `libhaybarn-<platform>.zip` (`-lhaybarn`).
 
 **Current DuckDB version: `v2.0.0`.**
 

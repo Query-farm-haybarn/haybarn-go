@@ -1,0 +1,26 @@
+haybarn-go
+Copyright 2026 Query Farm LLC
+
+This product is part of Haybarn, an independent derived distribution of DuckDB
+published by Query Farm LLC. Haybarn is independent of and not endorsed by the
+DuckDB Foundation. DuckDB is a trademark of the DuckDB Foundation.
+
+This repository is a fork of duckdb/duckdb-go
+(https://github.com/duckdb/duckdb-go), licensed under the MIT License (see
+LICENSE), Copyright 2019-2024 Marc Boeker and 2025-2026 Stichting DuckDB
+Foundation.
+
+Modifications made by Query Farm LLC relative to the upstream project:
+
+  - Go module path renamed from github.com/duckdb/duckdb-go/v2 to
+    github.com/Query-farm-haybarn/haybarn-go/v2 (and all import paths, including
+    the mapping and arrowmapping subpackages).
+  - Dependency switched from github.com/duckdb/duckdb-go-bindings to
+    github.com/Query-farm-haybarn/haybarn-go-bindings, which links the Haybarn
+    engine (Haybarn extension trust root + haybarn-extensions.query.farm
+    repositories) rather than DuckDB's.
+  - The database/sql driver is registered under "haybarn" (preferred) and
+    "duckdb" (drop-in alias). The Go package name remains `duckdb` and the
+    internal "duckdb_api" config string is preserved for ABI compatibility.
+  - Documentation, examples, the user-facing bug-report URL, and CI repointed at
+    the Haybarn org.
