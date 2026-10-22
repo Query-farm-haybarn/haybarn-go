@@ -30,8 +30,8 @@ db, err := sql.Open("haybarn", "")
 ```
 
 `CGO_ENABLED=1` and a C compiler are required. Pre-built libraries cover
-darwin-amd64, darwin-arm64, linux-amd64 (x86-64-v3) and linux-arm64;
-windows-amd64 is not available for 2.0 yet. The bindings fetch their native
+darwin-amd64, darwin-arm64, linux-amd64 (x86-64-v3), linux-arm64 and
+windows-amd64 (MinGW, from Haybarn 2.0.0-rc4). The bindings fetch their native
 library modules from `haybarn-extensions.query.farm/go`, so builds that
 restrict module downloads must allow it.
 
