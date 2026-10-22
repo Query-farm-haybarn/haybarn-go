@@ -1,7 +1,7 @@
 package duckdb
 
 import (
-	"github.com/duckdb/duckdb-go/v2/mapping"
+	"github.com/Query-farm-haybarn/haybarn-go/v2/mapping"
 )
 
 // Row represents one row in DuckDB, referencing the internal data chunk that the row belongs to.

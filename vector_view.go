@@ -3,7 +3,7 @@ package duckdb
 import (
 	"fmt"
 
-	"github.com/duckdb/duckdb-go/v2/mapping"
+	"github.com/Query-farm-haybarn/haybarn-go/v2/mapping"
 )
 
 // vectorValue is the set of Go values supported by vector access.

@@ -1,4 +1,4 @@
-module github.com/duckdb/duckdb-go/v2
+module github.com/Query-farm-haybarn/haybarn-go/v2
 
 go 1.24.0
 

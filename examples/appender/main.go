@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/duckdb/duckdb-go/v2"
+	duckdb "github.com/Query-farm-haybarn/haybarn-go/v2"
 )
 
 func main() {

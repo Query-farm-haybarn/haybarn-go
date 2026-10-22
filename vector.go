@@ -3,7 +3,7 @@ package duckdb
 import (
 	"unsafe"
 
-	"github.com/duckdb/duckdb-go/v2/mapping"
+	"github.com/Query-farm-haybarn/haybarn-go/v2/mapping"
 )
 
 // Vector is a borrowed handle to a DuckDB vector. It is valid as long as the

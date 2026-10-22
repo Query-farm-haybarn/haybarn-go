@@ -14,7 +14,7 @@ import (
 	"runtime/cgo"
 	"unsafe"
 
-	"github.com/duckdb/duckdb-go/v2/mapping"
+	"github.com/Query-farm-haybarn/haybarn-go/v2/mapping"
 )
 
 type ReplacementScanCallback func(tableName string) (string, []any, error)

@@ -19,7 +19,7 @@
 #      make debug
 #      ```
 #    After this, libduckdb (or libduckdb.dylib on macOS) should be in build/debug/src
-# 2) Have a Go application that uses github.com/duckdb/duckdb-go with build tag duckdb_use_lib.
+# 2) Have a Go application that uses github.com/Query-farm-haybarn/haybarn-go with build tag duckdb_use_lib.
 #
 # Usage:
 #   scripts/go-build-duckdb-debug.sh /path/to/go/app [package_or_dir] [output_name]

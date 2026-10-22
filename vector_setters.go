@@ -8,7 +8,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/duckdb/duckdb-go/v2/mapping"
+	"github.com/Query-farm-haybarn/haybarn-go/v2/mapping"
 )
 
 // isNullInput reports whether val is a NULL write. An untyped nil or a nil

@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/duckdb/duckdb-go/v2/mapping"
+	"github.com/Query-farm-haybarn/haybarn-go/v2/mapping"
 )
 
 // contextStore stores the thread-safe context of a connection.

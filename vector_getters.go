@@ -9,7 +9,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/duckdb/duckdb-go/v2/mapping"
+	"github.com/Query-farm-haybarn/haybarn-go/v2/mapping"
 )
 
 // fnGetVectorValue is the getter callback function for any (nested) vector.
