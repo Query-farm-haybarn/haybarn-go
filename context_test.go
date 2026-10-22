@@ -1,0 +1,270 @@
+package duckdb
+
+import (
+	"context"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/duckdb/duckdb-go/v2/mapping"
+)
+
+// Test that if the context is already canceled before entering the wrapper,
+// the function is not executed and no interrupt is issued.
+func TestRunWithCtxInterrupt_PreCanceled(t *testing.T) {
+	// Stub Interrupt to count invocations.
+	var count atomic.Int64
+	patchVar(t, &mapping.Interrupt, func(_ mapping.Connection) {
+		count.Add(1)
+	})
+
+	// Pre-cancel the context.
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	called := false
+	var dummyConn mapping.Connection
+	err := runWithCtxInterrupt(ctx, dummyConn, func(_ context.Context) error {
+		called = true
+		return nil
+	})
+
+	require.Error(t, err)
+	require.ErrorIs(t, err, context.Canceled)
+	require.False(t, called, "fn should not be called when ctx is pre-canceled")
+	require.Equal(t, int64(0), count.Load(), "Interrupt should not be called when ctx is pre-canceled")
+}
+
+// Test that when there is no cancellation, the wrapper does not call Interrupt.
+func TestRunWithCtxInterrupt_NoCancel_NoInterrupt(t *testing.T) {
+	var count atomic.Int64
+	patchVar(t, &mapping.Interrupt, func(_ mapping.Connection) { count.Add(1) })
+
+	ctx := context.Background()
+	called := false
+	var dummyConn mapping.Connection
+	err := runWithCtxInterrupt(ctx, dummyConn, func(_ context.Context) error {
+		called = true
+		return nil
+	})
+
+	require.NoError(t, err)
+	require.True(t, called, "fn should be called when ctx is not canceled")
+	require.Equal(t, int64(0), count.Load(), "Interrupt should not be called without cancellation")
+}
+
+// Test that after cancellation, Interrupt is invoked repeatedly until fn returns.
+func TestRunWithCtxInterrupt_Cancel_RepeatsUntilDone(t *testing.T) {
+	// Use a shorter interval for testing.
+	patchVar(t, &interruptInterval, 100*time.Millisecond)
+
+	var count atomic.Int64
+	patchVar(t, &mapping.Interrupt, func(_ mapping.Connection) { count.Add(1) })
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	started := make(chan struct{})
+	allowReturn := make(chan struct{})
+
+	var dummyConn mapping.Connection
+	doneErrCh := make(chan error)
+	go func() {
+		err := runWithCtxInterrupt(ctx, dummyConn, func(_ context.Context) error {
+			// Signal that fn is running.
+			close(started)
+			// Wait until test allows return, in the meantime, Interrupts should be happening.
+			<-allowReturn
+			return nil
+		})
+		doneErrCh <- err
+	}()
+
+	// Wait until the function has started, then cancel the context to trigger interrupts.
+	<-started
+	cancel()
+
+	testTookTooLong := false
+	// Wait until at least a few interrupts have been observed.
+	deadline := time.Now().Add(interruptInterval * 5)
+	for count.Load() < 3 && time.Now().Before(deadline) {
+		time.Sleep(1 * time.Millisecond)
+		// break if the test takes too long before we have enough interrupts
+		if time.Now().After(deadline.Add(1 * time.Second)) {
+			testTookTooLong = true
+			break
+		}
+	}
+	require.GreaterOrEqual(t, count.Load(), int64(1), "Interrupt should be called after cancellation")
+
+	// Allow the function to finish
+	// The wrapper should stop interrupting immediately after.
+	close(allowReturn)
+	err := <-doneErrCh
+	require.NoError(t, err)
+	require.False(t, testTookTooLong, "The test took too long without calling enough interruptions")
+
+	// Validate that interruptions stop after the wrapped function finishes.
+	finalCount := count.Load()
+	// Wait longer than interruptInterval
+	time.Sleep(interruptInterval + 100*time.Millisecond)
+	require.Equal(t, finalCount, count.Load(), "Interrupt should not be called after fn returns")
+}
+
+func TestRunWithCtxInterrupt_Cancel_ReturnsPromptlyAfterDone(t *testing.T) {
+	patchVar(t, &interruptInterval, time.Hour)
+
+	interrupted := make(chan struct{}, 1)
+	patchVar(t, &mapping.Interrupt, func(_ mapping.Connection) {
+		select {
+		case interrupted <- struct{}{}:
+		default:
+		}
+	})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	started := make(chan struct{})
+	allowReturn := make(chan struct{})
+	doneErrCh := make(chan error, 1)
+
+	var dummyConn mapping.Connection
+	go func() {
+		doneErrCh <- runWithCtxInterrupt(ctx, dummyConn, func(_ context.Context) error {
+			close(started)
+			<-allowReturn
+			return nil
+		})
+	}()
+
+	<-started
+	cancel()
+	<-interrupted
+	close(allowReturn)
+
+	select {
+	case err := <-doneErrCh:
+		require.NoError(t, err)
+	case <-time.After(time.Second):
+		t.Fatal("runWithCtxInterrupt did not return promptly after fn completed")
+	}
+}
+
+// Test that recursively wrapping with the same context only spawns a single interrupter goroutine.
+func TestRunWithCtxInterrupt_RecursiveOnlyOneGoroutine(t *testing.T) {
+	// Set a high interval to ensure only one call per goroutine until deadline set below
+	patchVar(t, &interruptInterval, 1*time.Second)
+
+	// Stub Interrupt to count calls
+	var interruptCount atomic.Int32
+	patchVar(t, &mapping.Interrupt, func(_ mapping.Connection) {
+		interruptCount.Add(1)
+	})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	var dummyConn mapping.Connection
+
+	started := make(chan struct{})
+	allowReturn := make(chan struct{})
+
+	doneErrCh := make(chan error, 1)
+	go func() {
+		err := runWithCtxInterrupt(ctx, dummyConn, func(wctx context.Context) error {
+			return runWithCtxInterrupt(wctx, dummyConn, func(wctx2 context.Context) error {
+				return runWithCtxInterrupt(wctx2, dummyConn, func(_ context.Context) error {
+					close(started)
+					<-allowReturn
+					return nil
+				})
+			})
+		})
+		doneErrCh <- err
+	}()
+
+	// Wait until innermost function is running, then cancel to exercise the loop.
+	<-started
+	cancel()
+
+	// Give the scheduler a brief moment to start the outer interrupter goroutine.
+	deadline := time.Now().Add(50 * time.Millisecond)
+	for time.Now().Before(deadline) && interruptCount.Load() == 0 {
+		time.Sleep(200 * time.Microsecond)
+	}
+
+	// Only one interrupter goroutine should have been spawned despite nesting.
+	require.Equal(t, int32(1), interruptCount.Load(), "only one interrupter goroutine should be spawned for recursive wrapping")
+
+	// Finish the innermost work and ensure no error is returned.
+	close(allowReturn)
+	require.NoError(t, <-doneErrCh)
+}
+
+// Test that a panic in fn after cancellation still stops the interrupter goroutine.
+// Callers may recover the panic and keep using the connection, so a leftover
+// interrupter would cancel later queries on it, or call Interrupt on a closed connection.
+func TestRunWithCtxInterrupt_PanicAfterCancel_StopsInterrupter(t *testing.T) {
+	patchVar(t, &interruptInterval, 5*time.Millisecond)
+
+	var count atomic.Int64
+	patchVar(t, &mapping.Interrupt, func(_ mapping.Connection) { count.Add(1) })
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	started := make(chan struct{})
+	allowPanic := make(chan struct{})
+	recoveredCh := make(chan any, 1)
+
+	var dummyConn mapping.Connection
+	go func() {
+		defer func() { recoveredCh <- recover() }()
+		_ = runWithCtxInterrupt(ctx, dummyConn, func(_ context.Context) error {
+			close(started)
+			<-allowPanic
+			panic("boom")
+		})
+	}()
+
+	<-started
+	cancel()
+	for count.Load() == 0 {
+		time.Sleep(time.Millisecond)
+	}
+	close(allowPanic)
+
+	require.Equal(t, "boom", <-recoveredCh, "the panic should propagate to the caller")
+
+	finalCount := count.Load()
+	time.Sleep(20 * interruptInterval)
+	require.Equal(t, finalCount, count.Load(), "Interrupt should not be called after fn panics")
+}
+
+// Test that a panic in fn before cancellation does not leave an interrupter waiting on ctx.
+func TestRunWithCtxInterrupt_PanicBeforeCancel_NoInterrupt(t *testing.T) {
+	patchVar(t, &interruptInterval, 5*time.Millisecond)
+
+	var count atomic.Int64
+	patchVar(t, &mapping.Interrupt, func(_ mapping.Connection) { count.Add(1) })
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	var dummyConn mapping.Connection
+	recoveredCh := make(chan any, 1)
+	func() {
+		defer func() { recoveredCh <- recover() }()
+		_ = runWithCtxInterrupt(ctx, dummyConn, func(_ context.Context) error {
+			panic("boom")
+		})
+	}()
+	require.Equal(t, "boom", <-recoveredCh, "the panic should propagate to the caller")
+
+	cancel()
+	time.Sleep(20 * interruptInterval)
+	require.Equal(t, int64(0), count.Load(), "Interrupt should not be called after fn panics")
+}
