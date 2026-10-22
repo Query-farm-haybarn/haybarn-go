@@ -45,7 +45,7 @@ func (udf *incrementTableUDF) Cardinality() *duckdb.CardinalityInfo {
 }
 
 func main() {
-	db, err := sql.Open("duckdb", "?access_mode=READ_WRITE")
+	db, err := sql.Open("haybarn", "?access_mode=READ_WRITE")
 	check(err)
 
 	conn, err := db.Conn(context.Background())

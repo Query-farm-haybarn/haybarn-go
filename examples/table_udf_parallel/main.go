@@ -101,7 +101,7 @@ func (udf *parallelIncrementTableUDF) GetFunction() duckdb.ParallelRowTableFunct
 }
 
 func main() {
-	db, err := sql.Open("duckdb", "?access_mode=READ_WRITE")
+	db, err := sql.Open("haybarn", "?access_mode=READ_WRITE")
 	check(err)
 
 	conn, err := db.Conn(context.Background())

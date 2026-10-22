@@ -21,7 +21,7 @@ type user struct {
 
 func main() {
 	var err error
-	db, err = sql.Open("duckdb", "?access_mode=READ_WRITE")
+	db, err = sql.Open("haybarn", "?access_mode=READ_WRITE")
 	check(err)
 	defer func() { check(db.Close()) }()
 

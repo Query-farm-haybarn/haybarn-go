@@ -1,7 +1,10 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-// Package duckdb implements a database/sql driver for the DuckDB database.
+// Package duckdb implements a database/sql driver for Haybarn, an independent
+// derived distribution of DuckDB. The package name is kept as `duckdb` for
+// source-level compatibility with duckdb-go; the driver is registered under
+// both "haybarn" (preferred) and "duckdb" (drop-in alias).
 package duckdb
 
 import (
@@ -23,6 +26,10 @@ var GetInstanceCache = sync.OnceValue(
 	})
 
 func init() {
+	// "haybarn" is the branded driver name; "duckdb" is kept as a drop-in alias
+	// so existing duckdb-go code (sql.Open("duckdb", ...)) works unchanged after
+	// only swapping the import path.
+	sql.Register("haybarn", Driver{})
 	sql.Register("duckdb", Driver{})
 }
 

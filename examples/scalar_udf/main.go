@@ -64,7 +64,7 @@ func (*listLen) Executor() duckdb.ScalarFuncExecutor {
 }
 
 func myLengthScalarUDFSet() {
-	db, err := sql.Open("duckdb", "?access_mode=READ_WRITE")
+	db, err := sql.Open("haybarn", "?access_mode=READ_WRITE")
 	check(err)
 
 	c, err := db.Conn(context.Background())
@@ -126,7 +126,7 @@ func (*wrapSum) Executor() duckdb.ScalarFuncExecutor {
 }
 
 func wrapSumScalarUDF() {
-	db, err := sql.Open("duckdb", "?access_mode=READ_WRITE")
+	db, err := sql.Open("haybarn", "?access_mode=READ_WRITE")
 	check(err)
 
 	c, err := db.Conn(context.Background())
@@ -187,7 +187,7 @@ func (*chunkSum) Executor() duckdb.ScalarFuncExecutor {
 }
 
 func chunkSumScalarUDF() {
-	db, err := sql.Open("duckdb", "?access_mode=READ_WRITE")
+	db, err := sql.Open("haybarn", "?access_mode=READ_WRITE")
 	check(err)
 
 	c, err := db.Conn(context.Background())

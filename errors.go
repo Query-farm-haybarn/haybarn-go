@@ -111,7 +111,7 @@ const (
 	unprojectedColumnErrMsg     = "unprojected column"
 	unsupportedTypeErrMsg       = "unsupported data type"
 	considerAppenderClearMsg    = "the appended rows that were not yet flushed were discarded: call Appender.Clear to acknowledge this, otherwise Appender.Close reports this error"
-	invalidatedAppenderClearMsg = "failed to clear appender's internal data (this likely indicates a bug - please consider opening a bug report at https://github.com/duckdb/duckdb-go/issues)"
+	invalidatedAppenderClearMsg = "failed to clear appender's internal data (this likely indicates a bug - please consider opening a bug report at https://github.com/Query-farm-haybarn/haybarn-go/issues)"
 	tryOtherFuncErrMsg          = "please try this function instead"
 	indexErrMsg                 = "index"
 	unknownTypeErrMsg           = "unknown type"
