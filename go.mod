@@ -3,7 +3,7 @@ module github.com/Query-farm-haybarn/haybarn-go/v2
 go 1.24.0
 
 require (
-	github.com/Query-farm-haybarn/haybarn-go-bindings v0.0.0-20261022184752-0de3909b2a08
+	github.com/Query-farm-haybarn/haybarn-go-bindings v0.0.0-20261023045620-f9e07a602a2d
 	github.com/apache/arrow-go/v18 v18.5.1
 	github.com/go-viper/mapstructure/v2 v2.5.0
 	github.com/google/uuid v1.6.0
@@ -27,7 +27,6 @@ require (
 	golang.org/x/tools v0.41.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	haybarn-extensions.query.farm/go/libhaybarn/darwin-amd64 v0.20000.0-rc.3 // indirect
 	haybarn-extensions.query.farm/go/libhaybarn/darwin-arm64 v0.20000.0-rc.3 // indirect
 	haybarn-extensions.query.farm/go/libhaybarn/linux-amd64 v0.20000.0-rc.3 // indirect
 	haybarn-extensions.query.farm/go/libhaybarn/linux-arm64 v0.20000.0-rc.3 // indirect

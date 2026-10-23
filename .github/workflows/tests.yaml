@@ -19,18 +19,12 @@ jobs:
     strategy:
       matrix:
         platform:
-          - darwin-amd64
           - darwin-arm64
           - linux-amd64
           - linux-arm64
           - windows-amd64
         go: [1.24]
-        # Keep native Intel coverage after merge without delaying PR checks.
-        exclude: &skip-intel-on-pr ${{ fromJSON(github.event_name == 'pull_request' && '[{"platform":"darwin-amd64"}]' || '[]') }}
         include:
-          # Includes run after exclusions; use an empty array on PRs to avoid
-          # adding the excluded Intel job back.
-          - &darwin-amd64 ${{ fromJSON(github.event_name == 'pull_request' && '[]' || '[{"platform":"darwin-amd64","github":"macos-15-intel"}]') }}
           - &darwin-arm64 { platform: darwin-arm64, github: macos-26 }
           - &linux-amd64 { platform: linux-amd64, github: ubuntu-24.04 }
           - &linux-arm64 { platform: linux-arm64, github: ubuntu-24.04-arm }
@@ -138,17 +132,13 @@ jobs:
       matrix:
         go: [1.24]
         platform:
-          - darwin-amd64
           - darwin-arm64
           - linux-amd64
           - linux-arm64
-        exclude: *skip-intel-on-pr
         include:
-          - *darwin-amd64
           - *darwin-arm64
           - *linux-amd64
           - *linux-arm64
-          - ${{ fromJSON(github.event_name == 'pull_request' && '[]' || '[{"platform":"darwin-amd64","ld_path_env_name":"DYLD_LIBRARY_PATH"}]') }}
           - platform: "darwin-arm64"
             ld_path_env_name: "DYLD_LIBRARY_PATH"
           - platform: "linux-amd64"

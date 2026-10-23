@@ -30,10 +30,10 @@ db, err := sql.Open("haybarn", "")
 ```
 
 `CGO_ENABLED=1` and a C compiler are required. Pre-built libraries cover
-darwin-amd64, darwin-arm64, linux-amd64 (x86-64-v3), linux-arm64 and
-windows-amd64 (MinGW, from Haybarn 2.0.0-rc4). The bindings fetch their native
-library modules from `haybarn-extensions.query.farm/go`, so builds that
-restrict module downloads must allow it.
+darwin-arm64, linux-amd64 (x86-64-v3), linux-arm64 and windows-amd64 (MinGW,
+from Haybarn 2.0.0-rc4). Haybarn 2.0 has no macOS x86_64 build. The bindings
+fetch their native library modules from `haybarn-extensions.query.farm/go`,
+so builds that restrict module downloads must allow it.
 
 ## Migrating from duckdb-go
 
